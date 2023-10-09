@@ -1,0 +1,89 @@
+# CVNX Token and Governance Security Audit Report
+
+# 1. Summary
+
+[CVNX Token and Governance](https://crypviser.network) smart contract security audit report performed by [Callisto Security Audit Department](https://github.com/EthereumCommonwealth/Auditing)
+
+- https://crypviser.network
+- https://t.me/crypviser_group
+- https://www.twitter.com/crypviser
+
+# 2. In scope
+
+https://drive.google.com/file/d/1Hg8slfz5UEHF1NmlHBxVJLZLJRgj69V4/view?usp=sharing
+
+Smart contracts: 
+- CVNX.sol
+- CVNXGovernance.sol
+- ICVNX.sol
+- ICVNXGovernance.sol
+
+# 3. Findings
+
+In total, **3 issues** were reported including:
+
+- 0 high severity issues.
+
+- 0 medium severity issues.
+
+- 1 low severity issues.
+
+- 1 notes.
+
+- 1 owner privileges.
+
+No critical security issues were found.
+
+## 3.1. Known vulnerabilities of ERC-20 token
+
+### Severity: low
+
+### Description
+
+1. Lack of transaction handling mechanism issue. [WARNING!](https://gist.github.com/Dexaran/ddb3e89fe64bf2e06ed15fbd5679bd20)  This is a very common issue and it already caused millions of dollars losses for lots of token users! More details [here](https://docs.google.com/document/d/1Feh5sP6oQL1-1NHi-X1dbgT3ch2WdhbXRevDN681Jv4/edit).
+
+### Recommendation
+
+Add the following code to the `transfer(_to address, ...)` function:
+
+```
+require( _to != address(this) );
+
+```
+
+## 3.2. Non standard decimals
+
+### Severity: note
+
+### Description
+
+`CVNX` token use `decimals = 5`. It's not a security issue, but may cause some confusing in development and using contract with third-party dApps.
+
+
+## 3.3. Owner privileges
+
+### Severity: owner privileges
+
+### Description
+
+Contract owner can set `stop poll` at any time.
+
+Please, pay attention, in comment to function `stopPoll(uint256 _pollNum)` is written: `Stop poll before deadline.` but there is not checking of `polls[_pollNum].pollDeadline > uint64(block.timestamp)`.
+
+
+# 4. Security practices
+
+- [ ] **Open-source contact**.
+- [ ] **The contract should pass a bug bounty after the completion of the security audit.**
+- [ ] **Public testing.**
+- [ ] **Automated anomaly detection systems.** - NOT IMPLEMENTED. A simple anomaly detection algorithm is recommended to be implemented to detect behavior that is atypical compared to normal for this contract. For instance the contract must halt deposits in case a large amount is being withdrawn in short period of time until the owner or the community of the contract approves further operationing.
+- [ ] **Multisig owner account.**
+- [ ] **Stnadard ERC20-related issues.** - NOT IMPLEMENTED. It is known that every contract can potentially receive unintended ERC20-token deposit without the ability to reject it even if the contract is not intended to receive or hold tokens. As the result it is recommended to implement a function that will allow to extract any arbitrary number of tokens from the contract.
+- [ ] **Crosschain address collisions.** ETH, ETC, CLO etc. It is possible that a transaction can be sent to the address of your contract at another chain (as a result of user mistake or some software fault). It is recommended that you deploy a "mock contract" that would allow you to withdraw any tokens from that address or prevent any funds deposits. Note that you can reject transactions of native token deposited but you can not reject the deposits of ERC20 tokens. You can use this source code as a mock contract: [extractor contract source code](https://github.com/EthereumCommonwealth/GNT-emergency-extractor-contract/blob/master/extractor.sol). The address of a new contract deployed using `CREATE (0xf0)` opcode is assigned following this scheme `keccak256(rlp([sender, nonce]))`. Therefore you need to use the same address that was originally used at the main chain to deploy the mock contract at a transaction with the `nonce` that matches that on the original chain. _Example: If you have deployed your main contract with address 0x010101 at your 2021th transaction then you need to increase your nonce of 0x010101 address to 2020 at the chain where your mock contract will be deployed. Then you can deploy your mock contract with your 2021th transaction and it will receive the same address as your mainnet contract._
+
+# 5. Conclusion
+
+The audited smart contract can be deployed. Only low severity issues were found during the audit.
+
+It is recommended to adhere to the security practices described in pt. 4 of this report in order to ensure the operability of the contract and prevent any issues which are not directly related to the code of this smart-contract.
+

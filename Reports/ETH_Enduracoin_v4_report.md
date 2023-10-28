@@ -59,7 +59,11 @@ In total, **3 notes** were reported, including:
 2. The `getPendingChangeRequest()` is a view function, so does not require `onlyApprovers` modifier.
 - https://github.com/Enduracoin/EnduracoinToken/blob/2ac940bfee90dba11d0b5499ae3e16d988b47ec6/ChangeRequests.sol#L150
 
+3. Owner can't create change request and must be the last approver in voting. If owner vote earlier the chenge reqest can't be approved and all others aprovver should vote against it to be able create new request. It's not a security issue, but may cause inconvinient.
 
+4. Redundant require statement in the modifier `requiresMultiSig`, the require statement is unnecessary as the following check is already being performed in the function `voteForChangeRequest()`.
+- https://github.com/Enduracoin/EnduracoinToken/blob/3b7fae4cee41858fc229c2b587879a92d7f9a741/ChangeRequests.sol#L69
+- https://github.com/Enduracoin/EnduracoinToken/blob/3b7fae4cee41858fc229c2b587879a92d7f9a741/ChangeRequests.sol#L252
 
 # 4. Security practices
 
@@ -80,7 +84,7 @@ It is recommended to adhere to the security practices described in pt. 4 of this
 # 6. Revealing audit reports
 
 - https://gist.github.com/greywolf12/fc0fa65f8c0ec69a5ef1db80d2fb0261
--
+- https://gist.github.com/chhajershrenik/dca0610f3413d4d255f25f47ec34f38c
 
 ## 6.1. Previous audit reports
 
